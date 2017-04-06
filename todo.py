@@ -1,4 +1,5 @@
 import sys
+import os
 
 class Controller():
 
@@ -26,6 +27,9 @@ class Controller():
             elif self.list_argv[0] == '-a':
                 model.db_adder(' '.join(self.list_argv[1:]))
                 display.list_printer()
+            elif self.list_argv[0] == '-e':
+                model.db_eraser()
+                display.list_eraser()
 
             else:
                 pass
@@ -43,12 +47,17 @@ class Model():
             self.task_list.append(task.split('|||'))
 
     def db_adder(self, task_to_add):
-        print(self.task_list)
         self.task_list.append(['0', str(task_to_add) + '\n'])
-        print(self.task_list)
         self.file.write('0'+'|||'+str(task_to_add))
         self.file.close()
         return self.task_list
+
+    def db_eraser(self):
+        self.eraser = input('Are you sure? (Y/N) ')
+        if self.eraser == 'Y':
+            self.file.close()
+            self.file = open('db.txt', 'w')
+
 
 
 
@@ -72,6 +81,7 @@ class Display():
         print(' -a   Adds a new task')
         print(' -r   Removes a task')
         print(' -c   Completes a task')
+        print(' -e   Empty task list')
 
     def list_printer(self):
         print('\nThings to do:')
@@ -82,6 +92,12 @@ class Display():
                 print(str(i+1) + ' - ' + not_checked + model.task_list[i][1][:-1])
             else:
                 print(str(i+1) + ' - ' + checked + model.task_list[i][1][:-1])
+
+    def list_eraser(self):
+        if model.eraser == 'Y':
+            print('List successfully erased.')
+        else:
+            print('Exit without erasing.')
 
 
 display = Display()
