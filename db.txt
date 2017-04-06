@@ -2,4 +2,5 @@
 0|||Buy butter
 0|||Manage life
 1|||Getting up early
-0|||ujabb feladat
+1|||ujabb feladat
+1|||Meg egy feladat

@@ -30,6 +30,9 @@ class Controller():
             elif self.list_argv[0] == '-e':
                 model.db_eraser()
                 display.list_eraser()
+            elif self.list_argv[0] == '-r':
+                model.db_remover(self.list_argv[1])
+                display.list_printer()
 
             else:
                 pass
@@ -48,15 +51,34 @@ class Model():
 
     def db_adder(self, task_to_add):
         self.task_list.append(['0', str(task_to_add) + '\n'])
-        self.file.write('0'+'|||'+str(task_to_add))
+        self.file.write('0'+'|||'+str(task_to_add) + '\n')
         self.file.close()
-        return self.task_list
 
     def db_eraser(self):
         self.eraser = input('Are you sure? (Y/N) ')
         if self.eraser == 'Y':
             self.file.close()
             self.file = open('db.txt', 'w')
+            self.file.close()
+
+    def db_checker(self, num):
+        self.task_list[int(num)-1][0] = '1'
+        self.file.close()
+        self.file = open('db.txt', 'w')
+        for i in range(len(self.task_list)):
+            self.file.write(self.task_list[i][0] + '|||' + self.task_list[i][1])
+        self.file.close()
+        return self.task_list
+
+    def db_remover(self, num):
+        self.task_list.remove(self.task_list[int(num)-1])
+        self.file.close()
+        self.file = open('db.txt', 'w')
+        for i in range(len(self.task_list)):
+            self.file.write(self.task_list[i][0] + '|||' + self.task_list[i][1])
+        self.file.close()
+        return self.task_list
+
 
 
 
@@ -79,8 +101,8 @@ class Display():
         print('Python Todo application\n ======================= \n \n Command line arguments: \n')
         print(' -l   Lists all the tasks')
         print(' -a   Adds a new task')
-        print(' -r   Removes a task')
-        print(' -c   Completes a task')
+        print(' -r   Removes a task. Enter task number.')
+        print(' -c   Completes a task. Enter task number.')
         print(' -e   Empty task list')
 
     def list_printer(self):
