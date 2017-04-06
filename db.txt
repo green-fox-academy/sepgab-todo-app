@@ -1,4 +1,5 @@
-0 ||| Buy bread
-0 ||| Buy butter
-0 ||| Manage life
-1 ||| Getting up early
+0|||Buy bread
+0|||Buy butter
+0|||Manage life
+1|||Getting up early
+0|||ujabb feladat
