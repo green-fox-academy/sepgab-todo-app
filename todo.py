@@ -18,34 +18,46 @@ class Controller():
         if len(self.list_argv) == 0:
             display.usage_print()
         else:
-            model.db_opener()
-            if self.list_argv[0] == '-l':
-                display.list_printer()
-            elif self.list_argv[0] == '-c':
-                model.db_checker(self.list_argv[1])
-                display.list_printer()
-            elif self.list_argv[0] == '-a':
-                model.db_adder(' '.join(self.list_argv[1:]))
-                display.list_printer()
-            elif self.list_argv[0] == '-e':
-                model.db_eraser()
-                display.list_eraser()
-            elif self.list_argv[0] == '-r':
-                model.db_remover(self.list_argv[1])
-                display.list_printer()
-
+            if self.list_argv[0] == '-h':
+                display.usage_print()
             else:
-                pass
-#        	if( arguments[0] == '-l' ):
-#        		print('Addolunk ilyet', arguments[1])
+                model.db_opener()
+                if self.list_argv[0] == '-l':
+                    display.list_printer()
+                elif self.list_argv[0] == '-c':
+                    model.db_checker(self.list_argv[1])
+                    model.db_updater()
+                    display.list_printer()
+                elif self.list_argv[0] == '-a':
+                    if len(self.list_argv) == 1:
+                        display.error_add_remove()
+                    else:
+                        model.db_adder(' '.join(self.list_argv[1:]))
+                        display.list_printer()
+                elif self.list_argv[0] == '-e':
+                    model.db_eraser()
+                    display.list_eraser()
+                elif self.list_argv[0] == '-r':
+                    if len(self.list_argv) == 1:
+                        display.error_add_remove()
+                    else:
+                        model.db_remover(self.list_argv[1])
+                        model.db_updater()
+                        display.list_printer()
+
+                else:
+                    display.error_argument()
+                    display.usage_print()
 
 
 class Model():
 
+    def __init__(self):
+        self.task_list = []
+
     def db_opener(self):
         self.file = open('db.txt', 'r+')
         self.task_list_raw = self.file.readlines()
-        self.task_list = []
         for task in self.task_list_raw:
             self.task_list.append(task.split('|||'))
 
@@ -62,7 +74,14 @@ class Model():
             self.file.close()
 
     def db_checker(self, num):
-        self.task_list[int(num)-1][0] = '1'
+        try:
+            self.task_list[int(num)-1][0] = '1'
+        except IndexError:
+            display.error_index()
+        except ValueError:
+            display.error_value()
+
+    def db_updater(self):
         self.file.close()
         self.file = open('db.txt', 'w')
         for i in range(len(self.task_list)):
@@ -71,34 +90,22 @@ class Model():
         return self.task_list
 
     def db_remover(self, num):
-        self.task_list.remove(self.task_list[int(num)-1])
-        self.file.close()
-        self.file = open('db.txt', 'w')
-        for i in range(len(self.task_list)):
-            self.file.write(self.task_list[i][0] + '|||' + self.task_list[i][1])
-        self.file.close()
-        return self.task_list
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        try:
+            self.task_list.remove(self.task_list[int(num)-1])
+        except IndexError:
+            display.error_index()
+        except ValueError:
+            display.error_value()
 
 class Display():
 
+    def __init__(self):
+        self.not_checked = '[ ] '
+        self.checked = '[X] '
+
     def usage_print(self):
-        print('Python Todo application\n ======================= \n \n Command line arguments: \n')
+        print(' Python Todo application\n ======================= \n \n Command line arguments: \n')
+        print(' -h   Help on command line arguments.')
         print(' -l   Lists all the tasks')
         print(' -a   Adds a new task')
         print(' -r   Removes a task. Enter task number.')
@@ -106,14 +113,15 @@ class Display():
         print(' -e   Empty task list')
 
     def list_printer(self):
-        print('\nThings to do:')
-        not_checked = '[ ] '
-        checked = '[X] '
-        for i in range(len(model.task_list)):
-            if model.task_list[i][0] == '0':
-                print(str(i+1) + ' - ' + not_checked + model.task_list[i][1][:-1])
-            else:
-                print(str(i+1) + ' - ' + checked + model.task_list[i][1][:-1])
+        if model.task_list == []:
+            print('No todos for today!')
+        else:
+            print('\nThings to do:')
+            for i in range(len(model.task_list)):
+                if model.task_list[i][0] == '0':
+                    print(str(i+1) + ' - ' + self.not_checked + model.task_list[i][1][:-1])
+                else:
+                    print(str(i+1) + ' - ' + self.checked + model.task_list[i][1][:-1])
 
     def list_eraser(self):
         if model.eraser == 'Y':
@@ -121,6 +129,17 @@ class Display():
         else:
             print('Exit without erasing.')
 
+    def error_argument(self):
+        print('\nUnsupported argument. \n')
+
+    def error_add_remove(self):
+        print('\nUnable to perform: no task provided. \n')
+
+    def error_index(self):
+        print('\nUnable to perform: index is out of bound. \n')
+
+    def error_value(self):
+        print('\nUnable to perform: index is not a number. \n')
 
 display = Display()
 model = Model()
